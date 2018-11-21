@@ -5,18 +5,19 @@ import il.ac.bgu.cs.fvm.automata.Automaton;
 import il.ac.bgu.cs.fvm.automata.MultiColorAutomaton;
 import il.ac.bgu.cs.fvm.channelsystem.ChannelSystem;
 import il.ac.bgu.cs.fvm.circuits.Circuit;
+import il.ac.bgu.cs.fvm.exceptions.StateNotFoundException;
+import il.ac.bgu.cs.fvm.impl.transitionsystem.TransitionSystemImpl;
 import il.ac.bgu.cs.fvm.ltl.LTL;
 import il.ac.bgu.cs.fvm.programgraph.ActionDef;
 import il.ac.bgu.cs.fvm.programgraph.ConditionDef;
 import il.ac.bgu.cs.fvm.programgraph.ProgramGraph;
 import il.ac.bgu.cs.fvm.transitionsystem.AlternatingSequence;
+import il.ac.bgu.cs.fvm.transitionsystem.Transition;
 import il.ac.bgu.cs.fvm.transitionsystem.TransitionSystem;
 import il.ac.bgu.cs.fvm.util.Pair;
 import il.ac.bgu.cs.fvm.verification.VerificationResult;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implement the methods in this class. You may add additional classes as you
@@ -27,17 +28,59 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <S, A, P> TransitionSystem<S, A, P> createTransitionSystem() {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement createTransitionSystem
+        return new TransitionSystemImpl<S, A, P>();
     }
 
     @Override
     public <S, A, P> boolean isActionDeterministic(TransitionSystem<S, A, P> ts) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isActionDeterministic
+        if(ts.getInitialStates().size() > 1)
+            return false;
+
+        Set<Pair<S, A>> statesActionsPair = new HashSet<Pair<S, A>>();
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while(transitionIterator.hasNext()){
+            Transition<S, A> currTransition = transitionIterator.next();
+            Pair<S, A> currPair = new Pair<S, A>(currTransition.getFrom(), currTransition.getAction());
+            if(statesActionsPair.contains(currPair))
+                return false;
+            statesActionsPair.add(currPair);
+        }
+
+        return true;
     }
+
+//    public <S, A, P> boolean isActionDeterministic(TransitionSystem<S, A, P> ts) {
+//        Set<A> actions = ts.getActions();
+//
+//        Iterator<S> statesIterator = ts.getStates().iterator();
+//        while(statesIterator.hasNext()){
+//
+//            Iterator<A> actionsIterator = actions.iterator();
+//            while(actionsIterator.hasNext()){
+//                if(post(ts, statesIterator.next(), actionsIterator.next()).size() > 1)
+//                    return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
     @Override
     public <S, A, P> boolean isAPDeterministic(TransitionSystem<S, A, P> ts) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isAPDeterministic
+        if(ts.getInitialStates().size() > 1)
+            return false;
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while(transitionIterator.hasNext()){
+            Transition<S, A> currTransition = transitionIterator.next();
+            Set<P> fromLabel = ts.getLabel(currTransition.getFrom()), toLabel = ts.getLabel(currTransition.getTo());
+            fromLabel.retainAll(toLabel);
+            if(fromLabel.size() > 1)
+                return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -62,57 +105,170 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <S, A> boolean isStateTerminal(TransitionSystem<S, A, ?> ts, S s) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isStateTerminal
+        return post(ts, s).isEmpty();
     }
 
     @Override
     public <S> Set<S> post(TransitionSystem<S, ?, ?> ts, S s) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement post
+        if(!ts.getStates().contains(s))
+            throw new StateNotFoundException(s);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<? extends Transition<S, ?>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(currentTransition.getFrom().equals(s))
+                postSet.add(currentTransition.getTo());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S> Set<S> post(TransitionSystem<S, ?, ?> ts, Set<S> c) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement post
+        if(!ts.getStates().containsAll(c))
+            throw new StateNotFoundException(c);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<? extends Transition<S, ?>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(c.contains(currentTransition.getFrom()))
+                postSet.add(currentTransition.getTo());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S, A> Set<S> post(TransitionSystem<S, A, ?> ts, S s, A a) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement post
+        if(!ts.getStates().contains(s))
+            throw new StateNotFoundException(s);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(currentTransition.getFrom().equals(s) && currentTransition.getAction().equals(a))
+                postSet.add(currentTransition.getTo());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S, A> Set<S> post(TransitionSystem<S, A, ?> ts, Set<S> c, A a) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement post
+        if(!ts.getStates().containsAll(c))
+            throw new StateNotFoundException(c);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(c.contains(currentTransition.getFrom()) && currentTransition.getAction().equals(a))
+                postSet.add(currentTransition.getTo());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S> Set<S> pre(TransitionSystem<S, ?, ?> ts, S s) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement pre
+        if(!ts.getStates().contains(s))
+            throw new StateNotFoundException(s);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<? extends Transition<S, ?>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(currentTransition.getTo().equals(s))
+                postSet.add(currentTransition.getFrom());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S> Set<S> pre(TransitionSystem<S, ?, ?> ts, Set<S> c) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement pre
+        if(!ts.getStates().containsAll(c))
+            throw new StateNotFoundException(c);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<? extends Transition<S, ?>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(c.contains(currentTransition.getTo()))
+                postSet.add(currentTransition.getFrom());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S, A> Set<S> pre(TransitionSystem<S, A, ?> ts, S s, A a) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement pre
+        if(!ts.getStates().contains(s))
+            throw new StateNotFoundException(s);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(currentTransition.getTo().equals(s) && currentTransition.getAction().equals(a))
+                postSet.add(currentTransition.getFrom());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S, A> Set<S> pre(TransitionSystem<S, A, ?> ts, Set<S> c, A a) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement pre
+        if(!ts.getStates().containsAll(c))
+            throw new StateNotFoundException(c);
+
+        Set<S> postSet = new HashSet<>();
+
+        Iterator<Transition<S, A>> transitionIterator = ts.getTransitions().iterator();
+        while (transitionIterator.hasNext()){
+            Transition<S, ?> currentTransition = transitionIterator.next();
+            if(c.contains(currentTransition.getTo()) && currentTransition.getAction().equals(a))
+                postSet.add(currentTransition.getFrom());
+        }
+
+        return postSet;
     }
 
     @Override
     public <S, A> Set<S> reach(TransitionSystem<S, A, ?> ts) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement reach
+        Set<S> closeReach = new HashSet<S>(), openReach = ts.getInitialStates();
+        while(!openReach.isEmpty()){
+            Set<S> newOpenReach = new HashSet<S>();
+            Iterator<S> currOpenReachIterator = openReach.iterator();
+            while(currOpenReachIterator.hasNext()){
+                S currState = currOpenReachIterator.next();
+                Iterator<S> currPostIterator = post(ts, currState).iterator();
+                while(currPostIterator.hasNext()){
+                    S currPostState = currPostIterator.next();
+                    if(!closeReach.contains(currPostState) && !openReach.contains(currPostState))
+                        newOpenReach.add(currPostState);
+                }
+            }
+            closeReach.addAll(openReach);
+            openReach = newOpenReach;
+        }
+
+        return closeReach;
     }
 
     @Override
     public <S1, S2, A, P> TransitionSystem<Pair<S1, S2>, A, P> interleave(TransitionSystem<S1, A, P> ts1, TransitionSystem<S2, A, P> ts2) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement interleave
+        return interleave(ts1, ts2, new HashSet<A>());
     }
 
     @Override
