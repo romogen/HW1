@@ -85,22 +85,43 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <S, A, P> boolean isExecution(TransitionSystem<S, A, P> ts, AlternatingSequence<S, A> e) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isExecution
+        return isMaximalExecutionFragment(ts, e) &&
+                isInitialExecutionFragment(ts, e);
     }
 
     @Override
     public <S, A, P> boolean isExecutionFragment(TransitionSystem<S, A, P> ts, AlternatingSequence<S, A> e) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isExecutionFragment
+        if(e.isEmpty())
+            return true;
+        if(!ts.getStates().contains(e.head()))
+            return false;
+
+
+        S fromState = e.head();
+        AlternatingSequence<A, S> remainingSequence = e.tail();
+        while(!remainingSequence.isEmpty()){
+            A transitionAction = remainingSequence.head();
+            S toState = remainingSequence.tail().head();
+            remainingSequence = remainingSequence.tail().tail();
+
+            if(!ts.getTransitions().contains(new Transition<S, A>(fromState, transitionAction, toState)))
+                return false;
+
+            fromState = toState;
+        }
+
+        return true;
     }
 
     @Override
     public <S, A, P> boolean isInitialExecutionFragment(TransitionSystem<S, A, P> ts, AlternatingSequence<S, A> e) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isInitialExecutionFragment
+        return ts.getInitialStates().contains(e.head());
     }
 
     @Override
     public <S, A, P> boolean isMaximalExecutionFragment(TransitionSystem<S, A, P> ts, AlternatingSequence<S, A> e) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement isMaximalExecutionFragment
+        return isExecutionFragment(ts, e) &&
+                isStateTerminal(ts, e.last());
     }
 
     @Override
@@ -273,7 +294,132 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <S1, S2, A, P> TransitionSystem<Pair<S1, S2>, A, P> interleave(TransitionSystem<S1, A, P> ts1, TransitionSystem<S2, A, P> ts2, Set<A> handShakingActions) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement interleave
+        TransitionSystem<Pair<S1, S2>, A, P> interleavedTS = new TransitionSystemImpl<Pair<S1, S2>, A, P>();
+
+        // add aps to interleavedTS
+        interleavedTS.addAllAtomicPropositions(ts1.getAtomicPropositions());
+        interleavedTS.addAllAtomicPropositions(ts2.getAtomicPropositions());
+
+        // create <Pair<S1, S2>> for interleavedTS
+        Iterator<S1> s1Iterator = ts1.getStates().iterator();
+        while(s1Iterator.hasNext()){
+            S1 currS1 = s1Iterator.next();
+
+            Iterator<S2> s2Iterator = ts2.getStates().iterator();
+            while (s2Iterator.hasNext()){
+                S2 currS2 = s2Iterator.next();
+                Pair<S1, S2> stateToAdd = new Pair<S1, S2>(currS1, currS2);
+                interleavedTS.addState(stateToAdd);
+
+                //add all labels to new state
+                Iterator<P> currS1Labels = ts1.getLabel(currS1).iterator(),
+                        currS2Labels = ts2.getLabel(currS2).iterator();
+                while(currS1Labels.hasNext())
+                    interleavedTS.addToLabel(stateToAdd, currS1Labels.next());
+                while(currS2Labels.hasNext())
+                    interleavedTS.addToLabel(stateToAdd, currS2Labels.next());
+            }
+        }
+
+        // add initial states to interleavedTS
+        Iterator<S1> s1Initials = ts1.getInitialStates().iterator();
+        while (s1Initials.hasNext()){
+            S1 currS1Initial = s1Initials.next();
+
+            Iterator<S2> s2Initials = ts2.getInitialStates().iterator();
+            while (s2Initials.hasNext()){
+                S2 currS2Initial = s2Initials.next();
+
+                interleavedTS.setInitial(new Pair<S1, S2>(currS1Initial, currS2Initial), true);
+            }
+        }
+
+        // add actions to interleavedTS
+        interleavedTS.addAllActions(ts1.getActions());
+        interleavedTS.addAllActions(ts2.getActions());
+
+        // go over all the transitions in handShakingActions.
+        Iterator<Transition<S1, A>> t1Iterator = ts1.getTransitions().iterator();
+        while(t1Iterator.hasNext()){
+            Transition<S1, A> currentT1 = t1Iterator.next();
+
+            Iterator<Transition<S2, A>> t2Iterator = ts2.getTransitions().iterator();
+            while(t2Iterator.hasNext()){
+                Transition<S2, A> currentT2 = t2Iterator.next();
+                if(currentT1.getAction() == currentT2.getAction() &&
+                        handShakingActions.contains(currentT1.getAction())){
+                    interleavedTS.addTransition(new Transition<Pair<S1, S2>, A>(
+                            new Pair<S1, S2>(currentT1.getFrom(), currentT2.getFrom()),
+                            currentT1.getAction(),
+                            new Pair<S1, S2>(currentT1.getTo(), currentT2.getTo())
+                    ));
+                }
+            }
+        }
+
+        //go over all ts1 transition and add no handshaking transitions.
+        t1Iterator = ts1.getTransitions().iterator();
+        while(t1Iterator.hasNext()){
+            Transition<S1, A> currentT1 = t1Iterator.next();
+            if(!handShakingActions.contains(currentT1.getAction())){
+                Iterator<S2> s2Iterator = ts2.getStates().iterator();
+                while(s2Iterator.hasNext()){
+                    S2 currS2 = s2Iterator.next();
+                    interleavedTS.addTransition(new Transition<Pair<S1,S2>, A>(
+                            new Pair<S1, S2>(currentT1.getFrom(), currS2),
+                            currentT1.getAction(),
+                            new Pair<S1, S2>(currentT1.getTo(), currS2)
+                    ));
+                }
+            }
+        }
+
+        //go over all ts2 transition and add no handshaking transitions.
+        Iterator<Transition<S2, A>> t2Iterator = ts2.getTransitions().iterator();
+        while(t2Iterator.hasNext()){
+            Transition<S2, A> currentT2 = t2Iterator.next();
+            if(!handShakingActions.contains(currentT2.getAction())){
+                s1Iterator = ts1.getStates().iterator();
+                while(s1Iterator.hasNext()){
+                    S1 currS1 = s1Iterator.next();
+                    interleavedTS.addTransition(new Transition<Pair<S1,S2>, A>(
+                            new Pair<S1, S2>(currS1, currentT2.getFrom()),
+                            currentT2.getAction(),
+                            new Pair<S1, S2>(currS1, currentT2.getTo())
+                    ));
+                }
+            }
+        }
+
+        //filter out all unreachable states
+        Set<Pair<S1, S2>> reachable = reach(interleavedTS), nonReachable = interleavedTS.getStates();
+        nonReachable.removeAll(reachable);
+
+        Iterator<Pair<S1, S2>> nonReachableIterator = nonReachable.iterator();
+        while(nonReachableIterator.hasNext()){
+            Pair<S1, S2> currState = nonReachableIterator.next();
+            interleavedTS.setInitial(currState, false);
+
+            // remove all state transactions
+            Iterator<Transition<Pair<S1, S2>, A>> interleaveTransitions = interleavedTS.getTransitions().iterator();
+            while(interleaveTransitions.hasNext()){
+                Transition<Pair<S1, S2>, A> currT = interleaveTransitions.next();
+                if(currT.getFrom().equals(currState) || currT.getTo().equals(currState))
+                    interleavedTS.removeTransition(currT);
+            }
+
+            // remove all state labels
+            Iterator<P> labels = interleavedTS.getLabel(currState).iterator();
+            while(labels.hasNext()){
+                P currL =labels.next();
+                interleavedTS.removeLabel(currState, currL);
+            }
+
+            //remove the state itself
+            interleavedTS.removeState(currState);
+        }
+
+        return interleavedTS;
     }
 
     @Override
