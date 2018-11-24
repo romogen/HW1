@@ -434,7 +434,100 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public TransitionSystem<Pair<Map<String, Boolean>, Map<String, Boolean>>, Map<String, Boolean>, Object> transitionSystemFromCircuit(Circuit c) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement transitionSystemFromCircuit
+        TransitionSystem<Pair<Map<String, Boolean>, Map<String, Boolean>>, Map<String, Boolean>, Object> ans = new TransitionSystemImpl<>();
+        Set<Pair<Map<String, Boolean>, Map<String, Boolean>>> closeState = new HashSet<Pair<Map<String, Boolean>, Map<String, Boolean>>>(),
+                openState = new HashSet<Pair<Map<String, Boolean>, Map<String, Boolean>>>();
+
+        // initialize a map with zero for all registers.
+        Map<String, Boolean> zeroRegisterMap = new HashMap<String, Boolean>();
+        for (String rName : c.getRegisterNames()){
+            zeroRegisterMap.put(rName, false);
+        }
+
+        // fill openState with initial states
+        Set<String> inputNames = c.getInputPortNames();
+        List<String> inputNamesList = new ArrayList<String>(inputNames);
+        int numOfDifferentInputs = (int)Math.pow(2, inputNames.size());
+        for(int n = 0 ; n < numOfDifferentInputs ; n++){
+            Map<String, Boolean> inputsMap = new HashMap<String, Boolean>();
+
+
+            // set inputsArray values by the number binaries
+            String binaryN = Integer.toBinaryString(n);
+
+            for(int i=0 ; i < inputNamesList.size() ; i++){
+                boolean boolAns;
+                if(i < binaryN.length())
+                    boolAns = (binaryN.charAt(binaryN.length()-i-1) == '1');
+                else
+                    boolAns = false;
+                inputsMap.put(inputNamesList.get(i), boolAns);
+            }
+
+            // add permutation (inputsMap) as action to ans
+            ans.addAction(inputsMap);
+
+            Pair<Map<String, Boolean>, Map<String, Boolean>> newState = new Pair<Map<String, Boolean>, Map<String, Boolean>>(inputsMap, zeroRegisterMap);
+            openState.add(newState);
+            ans.addState(newState);
+            ans.setInitial(newState, true);
+
+        }
+
+        // expand all nodes iterative until no new nodes are left to expand
+        Set<Map<String, Boolean>> actions = ans.getActions();
+        while(!openState.isEmpty()){
+            HashSet<Pair<Map<String, Boolean>, Map<String, Boolean>>> newOpenState = new HashSet<Pair<Map<String, Boolean>, Map<String, Boolean>>>();
+            for (Pair<Map<String, Boolean>, Map<String, Boolean>> currOpenState:
+                 openState) {
+                for (Map<String, Boolean> currAction :
+                        actions) {
+                    Pair<Map<String, Boolean>, Map<String, Boolean>> toState = new Pair<>(currAction, c.updateRegisters(currOpenState.getFirst(), currOpenState.getSecond()));
+                    if(!openState.contains(toState) && !closeState.contains(toState)) {
+                        newOpenState.add(toState);
+                        ans.addState(toState);
+                    }
+                    ans.addTransition(new Transition<>(currOpenState, currAction, toState));
+                }
+                closeState.add(currOpenState);
+            }
+            openState = newOpenState;
+        }
+
+        //add all possible labels as labels to ans
+        for(String input:c.getInputPortNames())
+            ans.addAtomicProposition(input);
+        for(String register:c.getRegisterNames())
+            ans.addAtomicProposition(register);
+        for(String output:c.getOutputPortNames())
+            ans.addAtomicProposition(output);
+
+        // add labels to all states
+        for (Pair<Map<String, Boolean>, Map<String, Boolean>> state :
+                closeState) {
+            Map<String, Boolean> inputMap = state.getFirst(),
+                    registerMap = state.getSecond();
+            Map<String, Boolean> outputMap = c.computeOutputs(inputMap, registerMap);
+
+            // add all true entries' labels as labels for current state
+            for ( Map.Entry<String, Boolean> inputEntry :
+                    inputMap.entrySet()) {
+                if(inputEntry.getValue())
+                    ans.addToLabel(state, inputEntry.getKey());
+            }
+            for ( Map.Entry<String, Boolean> registerEntry :
+                    registerMap.entrySet()) {
+                if(registerEntry.getValue())
+                    ans.addToLabel(state, registerEntry.getKey());
+            }
+            for ( Map.Entry<String, Boolean> outputEntry :
+                    outputMap.entrySet()) {
+                if(outputEntry.getValue())
+                    ans.addToLabel(state, outputEntry.getKey());
+            }
+        }
+
+        return ans;
     }
 
     @Override

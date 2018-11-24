@@ -32,8 +32,8 @@
       <file leaf-file-name="FvmFacadeImpl.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/il/ac/bgu/cs/fvm/impl/FvmFacadeImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="447">
-              <caret line="436" column="117" lean-forward="true" selection-start-line="436" selection-start-column="117" selection-end-line="436" selection-end-column="117" />
+            <state relative-caret-position="150">
+              <caret line="460" column="66" lean-forward="false" selection-start-line="460" selection-start-column="66" selection-end-line="460" selection-end-column="66" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1199#1200#0" expanded="true" />
@@ -44,7 +44,34 @@
                 <element signature="e#4724#4725#0" expanded="true" />
                 <element signature="e#11007#11027#0" expanded="true" />
                 <element signature="e#11622#11630#0" expanded="true" />
+                <element signature="e#17516#17566#0" expanded="true" />
+                <element signature="e#17609#17659#0" expanded="true" />
+                <element signature="e#17779#17796#0" expanded="true" />
+                <element signature="e#18062#18070#0" expanded="true" />
+                <element signature="e#18269#18286#0" expanded="true" />
+                <element signature="e#18936#18980#0" expanded="true" />
+                <element signature="e#19410#19460#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CircuitTest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../HW-Tests/test/il/ac/bgu/cs/fvm/ex1/CircuitTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Circuit.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../HW-Definitions/src/il/ac/bgu/cs/fvm/circuits/Circuit.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="151">
+              <caret line="40" column="31" lean-forward="false" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -124,11 +151,10 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="x" value="-11" />
-    <option name="y" value="-11" />
-    <option name="width" value="2902" />
-    <option name="height" value="1642" />
+    <option name="width" value="1938" />
+    <option name="height" value="1031" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -170,7 +196,7 @@
               <item name="HW-Definitions" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="fvm" type="462c0819:PsiDirectoryNode" />
-              <item name="circuits" type="462c0819:PsiDirectoryNode" />
+              <item name="examples" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="HW-Implementation" type="b2602c69:ProjectViewProjectNode" />
@@ -299,7 +325,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.TransitionSystemsProductTests">
+  <component name="RunManager" selected="JUnit.CircuitTest">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
       <option name="WIDTH" value="400" />
@@ -515,9 +541,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.TransitionSystemsProductTests" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.Ex1FragmentsTest" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.CircuitTest" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.CircuitTest" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.TransitionSystemsProductTests" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.Ex1FragmentsTest" />
         <item index="3" class="java.lang.String" itemvalue="JUnit.AlternatingSequenceTest" />
         <item index="4" class="java.lang.String" itemvalue="JUnit.Ex1ReachTest" />
       </list>
@@ -540,44 +566,44 @@
       <workItem from="1542727468144" duration="78000" />
       <workItem from="1542728010956" duration="601000" />
       <workItem from="1542728631807" duration="292000" />
-      <workItem from="1542728965568" duration="55987000" />
+      <workItem from="1542728965568" duration="66500000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Ex1FragmentsTest - 2018.11.22 at 16h 01m 09s.xml">
-      <configuration name="Ex1FragmentsTest" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 06m 49s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="Ex1FragmentsTest - 2018.11.22 at 16h 01m 28s.xml">
-      <configuration name="Ex1FragmentsTest" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 09m 05s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 11m 36s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 09m 44s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 11m 47s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 10m 42s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 18m 41s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 11m 37s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 18m 51s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 15m 00s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 18m 59s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 15m 16s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 27m 48s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 17m 05s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 16h 28m 08s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 19m 31s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TransitionSystemsProductTests - 2018.11.22 at 17h 27m 02s.xml">
-      <configuration name="TransitionSystemsProductTests" configurationId="JUnit" />
+    <history-entry file="CircuitTest - 2018.11.24 at 16h 20m 36s.xml">
+      <configuration name="CircuitTest" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57521000" />
+    <option name="totallyTimeSpent" value="68034000" />
   </component>
   <component name="TodoView" selected-index="1">
     <todo-panel id="selected-file">
@@ -589,37 +615,37 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-11" y="-11" width="1942" height="1042" extended-state="6" />
+    <frame x="-11" y="0" width="1938" height="1031" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938388" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938388" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938388" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32893157" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32989323" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938388" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32464454" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938388" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32893157" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24270271" sideWeight="0.5" order="5" side_tool="false" content_ui="combo" />
-      <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37322274" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.251896" sideWeight="0.5" order="5" side_tool="false" content_ui="combo" />
+      <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37214887" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3992891" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39855942" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -638,7 +664,7 @@
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="4" />
+      <option name="time" value="14" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -914,42 +940,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../HW-Tests/test/il/ac/bgu/cs/fvm/ex1/CircuitTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
-          <caret line="166" column="20" lean-forward="true" selection-start-line="166" selection-start-column="20" selection-end-line="166" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/il/ac/bgu/cs/fvm/impl/transitionsystem/TransitionSystemImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1034#1035#0" expanded="true" />
-            <element signature="e#1061#1062#0" expanded="true" />
-            <element signature="e#1115#1116#0" expanded="true" />
-            <element signature="e#1147#1148#0" expanded="true" />
-            <element signature="e#1207#1208#0" expanded="true" />
-            <element signature="e#1244#1245#0" expanded="true" />
-            <element signature="e#2189#2197#0" expanded="true" />
-            <element signature="e#2346#2347#0" expanded="true" />
-            <element signature="e#2372#2373#0" expanded="true" />
-            <element signature="e#2503#2523#0" expanded="true" />
-            <element signature="e#3035#3055#0" expanded="true" />
-            <element signature="e#3234#3241#0" expanded="true" />
-            <element signature="e#3471#3503#0" expanded="true" />
-            <element signature="e#3801#3821#0" expanded="true" />
-            <element signature="e#4069#4076#0" expanded="true" />
-            <element signature="e#4292#4319#0" expanded="true" />
-            <element signature="e#6366#6367#0" expanded="true" />
-            <element signature="e#6403#6404#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../HW-Tests/test/il/ac/bgu/cs/fvm/ex1/Ex1FragmentsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="177">
@@ -1023,18 +1013,69 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../HW-Definitions/src/il/ac/bgu/cs/fvm/examples/ExampleCircuit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="15" column="7" lean-forward="true" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../HW-Definitions/src/il/ac/bgu/cs/fvm/circuits/Circuit.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+        <state relative-caret-position="151">
+          <caret line="40" column="31" lean-forward="false" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/il/ac/bgu/cs/fvm/impl/transitionsystem/TransitionSystemImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="50">
+          <caret line="2" column="11" lean-forward="false" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+          <folding>
+            <element signature="e#1034#1035#0" expanded="true" />
+            <element signature="e#1061#1062#0" expanded="true" />
+            <element signature="e#1115#1116#0" expanded="true" />
+            <element signature="e#1147#1148#0" expanded="true" />
+            <element signature="e#1207#1208#0" expanded="true" />
+            <element signature="e#1244#1245#0" expanded="true" />
+            <element signature="e#2189#2197#0" expanded="true" />
+            <element signature="e#2346#2347#0" expanded="true" />
+            <element signature="e#2372#2373#0" expanded="true" />
+            <element signature="e#2503#2523#0" expanded="true" />
+            <element signature="e#3035#3055#0" expanded="true" />
+            <element signature="e#3234#3241#0" expanded="true" />
+            <element signature="e#3471#3503#0" expanded="true" />
+            <element signature="e#3801#3821#0" expanded="true" />
+            <element signature="e#4069#4076#0" expanded="true" />
+            <element signature="e#4292#4319#0" expanded="true" />
+            <element signature="e#6366#6367#0" expanded="true" />
+            <element signature="e#6403#6404#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/Map.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="359" column="17" lean-forward="true" selection-start-line="359" selection-start-column="17" selection-end-line="359" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../HW-Tests/test/il/ac/bgu/cs/fvm/ex1/CircuitTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/il/ac/bgu/cs/fvm/impl/FvmFacadeImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
-          <caret line="436" column="117" lean-forward="true" selection-start-line="436" selection-start-column="117" selection-end-line="436" selection-end-column="117" />
+        <state relative-caret-position="150">
+          <caret line="460" column="66" lean-forward="false" selection-start-line="460" selection-start-column="66" selection-end-line="460" selection-end-column="66" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1199#1200#0" expanded="true" />
@@ -1045,6 +1086,13 @@
             <element signature="e#4724#4725#0" expanded="true" />
             <element signature="e#11007#11027#0" expanded="true" />
             <element signature="e#11622#11630#0" expanded="true" />
+            <element signature="e#17516#17566#0" expanded="true" />
+            <element signature="e#17609#17659#0" expanded="true" />
+            <element signature="e#17779#17796#0" expanded="true" />
+            <element signature="e#18062#18070#0" expanded="true" />
+            <element signature="e#18269#18286#0" expanded="true" />
+            <element signature="e#18936#18980#0" expanded="true" />
+            <element signature="e#19410#19460#0" expanded="true" />
           </folding>
         </state>
       </provider>
