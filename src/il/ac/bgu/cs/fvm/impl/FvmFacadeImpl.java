@@ -6,10 +6,12 @@ import il.ac.bgu.cs.fvm.automata.MultiColorAutomaton;
 import il.ac.bgu.cs.fvm.channelsystem.ChannelSystem;
 import il.ac.bgu.cs.fvm.circuits.Circuit;
 import il.ac.bgu.cs.fvm.exceptions.StateNotFoundException;
+import il.ac.bgu.cs.fvm.impl.programgraph.ProgramGraphImpl;
 import il.ac.bgu.cs.fvm.impl.transitionsystem.TransitionSystemImpl;
 import il.ac.bgu.cs.fvm.ltl.LTL;
 import il.ac.bgu.cs.fvm.programgraph.ActionDef;
 import il.ac.bgu.cs.fvm.programgraph.ConditionDef;
+import il.ac.bgu.cs.fvm.programgraph.PGTransition;
 import il.ac.bgu.cs.fvm.programgraph.ProgramGraph;
 import il.ac.bgu.cs.fvm.transitionsystem.AlternatingSequence;
 import il.ac.bgu.cs.fvm.transitionsystem.Transition;
@@ -424,12 +426,70 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <L, A> ProgramGraph<L, A> createProgramGraph() {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement createProgramGraph
+        return new ProgramGraphImpl<>();
     }
 
     @Override
     public <L1, L2, A> ProgramGraph<Pair<L1, L2>, A> interleave(ProgramGraph<L1, A> pg1, ProgramGraph<L2, A> pg2) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement interleave
+        ProgramGraph<Pair<L1, L2>, A> interleavedPG = new ProgramGraphImpl<Pair<L1, L2>, A>();
+
+        // create locations
+        for(L1 loc1 :
+                pg1.getLocations()){
+            for (L2 loc2 :
+                    pg2.getLocations()) {
+                interleavedPG.addLocation(new Pair<>(loc1, loc2));
+            }
+        }
+
+        // create initials
+        for (L1 init1 :
+                pg1.getInitialLocations()) {
+            for (L2 init2 :
+                    pg2.getInitialLocations()) {
+                interleavedPG.setInitial(new Pair<>(init1, init2), true);
+            }
+        }
+
+        // create initializations
+        for (List<String> init1 :
+                pg1.getInitalizations()) {
+            for (List<String> init2 :
+                    pg1.getInitalizations()) {
+                List<String> unionList = new ArrayList<>();
+                unionList.addAll(init1);
+                unionList.addAll(init2);
+                interleavedPG.addInitalization(unionList);
+            }
+        }
+
+        // create transitions
+        for (PGTransition<L1, A> t1 :
+                pg1.getTransitions()) {
+            for (L2 loc2 :
+                    pg2.getLocations()) {
+                interleavedPG.addTransition(new PGTransition<>(
+                        new Pair<>(t1.getFrom(), loc2),
+                        t1.getCondition(),
+                        t1.getAction(),
+                        new Pair<>(t1.getTo(), loc2)
+                ));
+            }
+        }
+        for (PGTransition<L2, A> t2 :
+                pg2.getTransitions()) {
+            for (L1 loc1 :
+                    pg1.getLocations()) {
+                interleavedPG.addTransition(new PGTransition<>(
+                        new Pair<>(loc1, t2.getFrom()),
+                        t2.getCondition(),
+                        t2.getAction(),
+                        new Pair<>(loc1, t2.getTo())
+                ));
+            }
+        }
+
+        return interleavedPG;
     }
 
     @Override
@@ -532,12 +592,101 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <L, A> TransitionSystem<Pair<L, Map<String, Object>>, A, String> transitionSystemFromProgramGraph(ProgramGraph<L, A> pg, Set<ActionDef> actionDefs, Set<ConditionDef> conditionDefs) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement transitionSystemFromProgramGraph
+        TransitionSystem<Pair<L, Map<String, Object>>, A, String> ansTransitionSystem = new TransitionSystemImpl<>();
+        Set<Pair<L, Map<String, Object>>> openState = new HashSet<>(),
+                closeState = new HashSet<>();
+
+        // build initials for openState
+        if(!pg.getInitalizations().isEmpty()) {
+            for (List<String> init :
+                    pg.getInitalizations()) {
+
+                // get the variables values after the effect of initial actions.
+                Map<String, Object> currValues = new HashMap<>();
+                for (String currAct :
+                        init) {
+                    currValues = ActionDef.effect(actionDefs, currValues, currAct);
+                }
+
+                buildInitialStatePGtoTS((ProgramGraph<L, A>) pg, (TransitionSystem<Pair<L, Map<String, Object>>, A, String>) ansTransitionSystem, (Set<Pair<L, Map<String, Object>>>) openState, currValues);
+            }
+        }
+        else{
+            Map<String, Object> currValues = new HashMap<>();
+            buildInitialStatePGtoTS((ProgramGraph<L,A>) pg, (TransitionSystem<Pair<L,Map<String,Object>>,A,String>) ansTransitionSystem, (Set<Pair<L,Map<String,Object>>>) openState, currValues);
+        }
+
+        // expand iteratively every state in openState until no states to expand
+        while(!openState.isEmpty()){
+            Set<Pair<L, Map<String, Object>>> newOpenState = new HashSet<>();
+
+            for (Pair<L, Map<String, Object>> currState:
+                 openState) {
+
+                // handle every transition the from state is currState
+                Set<PGTransition<L, A>> pgTransitions = pg.getTransitions();
+                for (PGTransition<L, A> currTransition:
+                     pgTransitions) {
+                    if(currTransition.getFrom().equals(currState.getFirst()) &&
+                            ConditionDef.evaluate(conditionDefs, currState.getSecond(), currTransition.getCondition())){
+
+                        ansTransitionSystem.addAction(currTransition.getAction());
+                        Pair<L, Map<String, Object>> newState = new Pair<>(currTransition.getTo(),ActionDef.effect(actionDefs, currState.getSecond(), currTransition.getAction()));
+
+                        // first time we see this state
+                        if(!openState.contains(newState) && !closeState.contains(newState)){
+                            newOpenState.add(newState);
+                            ansTransitionSystem.addState(newState);
+                            // add labels to new state
+                            ansTransitionSystem.addAtomicProposition(newState.getFirst().toString());
+                            ansTransitionSystem.addToLabel(newState, newState.getFirst().toString());
+                            for(String currVar
+                                    : newState.getSecond().keySet())
+                            {
+                                ansTransitionSystem.addAtomicProposition(currVar+" = "+newState.getSecond().get(currVar));
+                                ansTransitionSystem.addToLabel(newState, currVar+" = "+newState.getSecond().get(currVar));
+                            }
+                        }
+
+                        ansTransitionSystem.addTransition(new Transition<>(currState, currTransition.getAction(), newState));
+                    }
+                }
+                closeState.add(currState);
+            }
+            openState = newOpenState;
+        }
+
+        return ansTransitionSystem;
+    }
+
+    private <L, A> void buildInitialStatePGtoTS(ProgramGraph<L, A> pg, TransitionSystem<Pair<L, Map<String, Object>>, A, String> ansTransitionSystem, Set<Pair<L, Map<String, Object>>> openState, Map<String, Object> currValues) {
+        for (L loc :
+                pg.getInitialLocations()) {
+            Pair<L, Map<String, Object>> currState = new Pair<>(loc, currValues);
+
+            // add the state to openState
+            openState.add(currState);
+
+            // add state to intials
+            ansTransitionSystem.addState(currState);
+            ansTransitionSystem.setInitial(currState, true);
+
+            //add state labels
+            ansTransitionSystem.addAtomicProposition(loc.toString());
+            ansTransitionSystem.addToLabel(currState, loc.toString());
+
+            // add variables values as labels.
+            for (String currVar :
+                    currValues.keySet()) {
+                ansTransitionSystem.addAtomicProposition(currVar + " = " + currValues.get(currVar));
+                ansTransitionSystem.addToLabel(currState, currVar + " = " + currValues.get(currVar));
+            }
+        }
     }
 
     @Override
     public <L, A> TransitionSystem<Pair<List<L>, Map<String, Object>>, A, String> transitionSystemFromChannelSystem(ChannelSystem<L, A> cs) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement transitionSystemFromChannelSystem
+
     }
 
     @Override
