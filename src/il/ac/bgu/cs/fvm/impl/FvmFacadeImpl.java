@@ -18,8 +18,13 @@ import il.ac.bgu.cs.fvm.transitionsystem.Transition;
 import il.ac.bgu.cs.fvm.transitionsystem.TransitionSystem;
 import il.ac.bgu.cs.fvm.util.Pair;
 import il.ac.bgu.cs.fvm.verification.VerificationResult;
+import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaParser.OptionContext;
+import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaParser.StmtContext;
+import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaFileReader;
 import java.io.InputStream;
 import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Implement the methods in this class. You may add additional classes as you
@@ -686,7 +691,7 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <L, A> TransitionSystem<Pair<List<L>, Map<String, Object>>, A, String> transitionSystemFromChannelSystem(ChannelSystem<L, A> cs) {
-
+        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement product
     }
 
     @Override
@@ -695,19 +700,144 @@ public class FvmFacadeImpl implements FvmFacade {
     }
 
     @Override
+    //implement
     public ProgramGraph<String, String> programGraphFromNanoPromela(String filename) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement programGraphFromNanoPromela
+        return programGraphFromNP(NanoPromelaFileReader.pareseNanoPromelaFile(filename));
     }
 
     @Override
+    //implement
     public ProgramGraph<String, String> programGraphFromNanoPromelaString(String nanopromela) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement programGraphFromNanoPromelaString
+        return programGraphFromNP(NanoPromelaFileReader.pareseNanoPromelaString(nanopromela));
     }
 
     @Override
+    //implement
     public ProgramGraph<String, String> programGraphFromNanoPromela(InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement programGraphFromNanoPromela
+        return programGraphFromNP(NanoPromelaFileReader.parseNanoPromelaStream(inputStream));
     }
+
+    private ProgramGraph<String , String> programGraphFromNP(StmtContext sc){
+        ProgramGraph<String, String> new_graph = (new FvmFacadeImpl()).createProgramGraph();
+        Set<List<StmtContext>> states = new HashSet<>();
+        ArrayList<StmtContext> list_sc =  new ArrayList<>();
+        Set<Temp_Transition> transitions = new HashSet<>();
+        list_sc.add(sc);
+        //new_graph.addInitalization(getNameOfState(list_sc));
+
+        states.add(list_sc);
+        Set<List<StmtContext>> copy_states =  new HashSet<>(states);
+        while (!copy_states.isEmpty()) {
+            Set<List<StmtContext>> new_states = new HashSet<>();
+            for (List<StmtContext> list : copy_states) {
+                Set<Temp_Transition> new_transions = create_transions(list);
+                transitions.addAll(new_transions);
+                for (Temp_Transition trans : new_transions) {
+                    if (!states.contains(trans.getDest_stmt())){
+                        states.add(trans.getDest_stmt());
+                        new_states.add(trans.getDest_stmt());
+                    }
+                }
+            }
+            copy_states = new_states;
+        }
+        for(List<StmtContext> stmt : states) {
+            List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+            new_graph.addLocation(getNameOfState(copy_stmt));
+        }
+        List<String> name_init = new ArrayList<>();
+        name_init.add(getNameOfState(list_sc));
+        //new_graph.addInitalization(name_init);
+        list_sc.add(sc);
+        new_graph.setInitial(getNameOfState(list_sc),true);
+        for (Temp_Transition trans : transitions) {
+            String source = getNameOfState(trans.getSource_stmt());
+            String dest = getNameOfState(trans.getDest_stmt());
+            new_graph.addTransition(new PGTransition<>(source, trans.getCondition(), trans.getAction(), dest));
+        }
+
+        return new_graph;
+    }
+    private String getNameOfState(List<StmtContext> list_stmt){
+        if(list_stmt.isEmpty())
+            return "";
+        String ans = list_stmt.get(0).getText();
+        list_stmt.remove(0);
+        for(StmtContext stmt : list_stmt){
+            ans = ans + ';' + stmt.getText();
+        }
+        return ans;
+    }
+
+    private Set<Temp_Transition> create_transions(List<StmtContext> stmt) {
+        if (stmt.isEmpty()){
+            HashSet<Temp_Transition> ans = new HashSet<>();
+            return ans;
+        }
+        if (stmt.get(0).assstmt() != null || stmt.get(0).chanreadstmt() != null || stmt.get(0).chanwritestmt() != null || stmt.get(0).atomicstmt() != null || stmt.get(0).skipstmt() != null) {
+            List<StmtContext> dest = new ArrayList<StmtContext>(stmt);
+            dest.remove(0);
+            HashSet<Temp_Transition> ans = new HashSet<>();
+            List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+            ans.add(new Temp_Transition(copy_stmt ,  dest ,"" , stmt.get(0).getText()));
+            return ans;
+        }
+        else {
+            if (stmt.get(0).ifstmt() != null) {
+                HashSet<Temp_Transition> ans = new HashSet<>();
+                for (OptionContext option : stmt.get(0).ifstmt().option()) {
+                    Set<Temp_Transition> optiontTrans = create_transions(Arrays.asList(option.stmt()));
+                    for (Temp_Transition trans : optiontTrans) {
+                        String conditions = "(" + option.boolexpr().getText() + ")" + ((!trans.getCondition().isEmpty()) ? " && (" + trans.getCondition() + ")" : "");
+                        List<StmtContext> dests = new ArrayList<StmtContext>(trans.getDest_stmt());
+                        dests.addAll(stmt.subList(1, stmt.size()));
+                        List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+                        ans.add(new Temp_Transition(copy_stmt, dests ,conditions, trans.getAction()));
+
+                    }
+                }
+
+                return ans;
+            } else if (stmt.get(0).dostmt() != null) {
+                HashSet<Temp_Transition> ans = new HashSet<>();
+                for (OptionContext option : stmt.get(0).dostmt().option()) {
+                    Set<Temp_Transition> optionTrans = create_transions(Arrays.asList(option.stmt()));
+                    for (Temp_Transition trans : optionTrans) {
+                        String conditions = "(" + option.boolexpr().getText() + ")" + ((!trans.getCondition().isEmpty()) ? " && (" + trans.getCondition() + ")" : "");
+                        List<StmtContext> dests = new ArrayList<>(trans.getDest_stmt());
+                        dests.addAll(stmt);
+                        List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+                        ans.add(new Temp_Transition(copy_stmt,  dests,conditions, trans.getAction()));
+                    }
+                }
+                List<StmtContext> locations = new ArrayList<>(stmt);
+                locations.remove(0);
+                String bools = "";
+                String or = "";
+                for (OptionContext option : stmt.get(0).dostmt().option()) {
+                    if (!option.boolexpr().getText().isEmpty()) {
+                        bools += (or + "(" + option.boolexpr().getText() + ")");
+                        or = "||";
+                    }
+                }
+                List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+                ans.add(new Temp_Transition(copy_stmt, locations , "!(" + bools + ")", "" ));
+                return ans;
+            } else {
+                HashSet<Temp_Transition> ans = new HashSet<>();
+                Set<Temp_Transition> transitions = create_transions(Arrays.asList(stmt.get(0).stmt(0)));
+                for (Temp_Transition trans : transitions) {
+                    List<StmtContext> dests = new ArrayList<>(trans.getDest_stmt());
+                    List<StmtContext> statem = stmt.get(0).stmt();
+                    dests.addAll(statem.subList(1, statem.size()));
+                    List<StmtContext> copy_stmt = new ArrayList<>(stmt);
+                    ans.add(new Temp_Transition(copy_stmt, dests ,trans.getCondition(), trans.getAction() ));
+                }
+                return ans;
+            }
+        }
+    }
+
 
     @Override
     public <S, A, P, Saut> VerificationResult<S> verifyAnOmegaRegularProperty(TransitionSystem<S, A, P> ts, Automaton<Saut, P> aut) {
