@@ -4,15 +4,13 @@ import il.ac.bgu.cs.fvm.FvmFacade;
 import il.ac.bgu.cs.fvm.automata.Automaton;
 import il.ac.bgu.cs.fvm.automata.MultiColorAutomaton;
 import il.ac.bgu.cs.fvm.channelsystem.ChannelSystem;
+import il.ac.bgu.cs.fvm.channelsystem.ParserBasedInterleavingActDef;
 import il.ac.bgu.cs.fvm.circuits.Circuit;
 import il.ac.bgu.cs.fvm.exceptions.StateNotFoundException;
 import il.ac.bgu.cs.fvm.impl.programgraph.ProgramGraphImpl;
 import il.ac.bgu.cs.fvm.impl.transitionsystem.TransitionSystemImpl;
 import il.ac.bgu.cs.fvm.ltl.LTL;
-import il.ac.bgu.cs.fvm.programgraph.ActionDef;
-import il.ac.bgu.cs.fvm.programgraph.ConditionDef;
-import il.ac.bgu.cs.fvm.programgraph.PGTransition;
-import il.ac.bgu.cs.fvm.programgraph.ProgramGraph;
+import il.ac.bgu.cs.fvm.programgraph.*;
 import il.ac.bgu.cs.fvm.transitionsystem.AlternatingSequence;
 import il.ac.bgu.cs.fvm.transitionsystem.Transition;
 import il.ac.bgu.cs.fvm.transitionsystem.TransitionSystem;
@@ -684,9 +682,147 @@ public class FvmFacadeImpl implements FvmFacade {
         }
     }
 
+    private <L, A> ProgramGraph<List<L>, A> adaptFirstCS(ProgramGraph<L, A> firstPg){
+        ProgramGraph<List<L>, A> ansPG = new ProgramGraphImpl<>();
+        // add locations
+        for (L currLoc :
+                firstPg.getLocations()) {
+            List<L> newLoc = new ArrayList<L>();
+            newLoc.add(currLoc);
+            ansPG.addLocation(newLoc);
+        }
+
+        //add initials
+        for (L initLoc :
+                firstPg.getInitialLocations()) {
+            List<L> newLoc = new ArrayList<>();
+            newLoc.add(initLoc);
+            ansPG.setInitial(newLoc, true);
+        }
+
+        //add initializations
+        for (List<String> initialization:
+                firstPg.getInitalizations()){
+            ansPG.addInitalization(initialization);
+        }
+
+        //add transitions
+        for (PGTransition<L, A> currTrans :
+                firstPg.getTransitions()) {
+            List<L> newFrom = new ArrayList<>();
+            newFrom.add(currTrans.getFrom());
+            List<L> newTo = new ArrayList<>();
+            newTo.add(currTrans.getTo());
+
+            PGTransition<List<L>, A> newTrans = new PGTransition<>(newFrom, currTrans.getCondition(),
+                    currTrans.getAction(), newTo);
+
+            ansPG.addTransition(newTrans);
+        }
+
+        ansPG.setName(firstPg.getName());
+
+        return ansPG;
+
+    }
+
+    private <L, A> ProgramGraph<List<L>, A> listInterleave(ProgramGraph<List<L>, A> pg1, ProgramGraph<L, A> pg2){
+        ProgramGraph<List<L>, A> interleavedPG = new ProgramGraphImpl<List<L>, A>();
+
+        // create locations
+        for(List<L> loc1 :
+                pg1.getLocations()){
+            for (L loc2 :
+                    pg2.getLocations()) {
+                loc1.add(loc2);
+                interleavedPG.addLocation(loc1);
+            }
+        }
+
+        // create initials
+        for (List<L> init1 :
+                pg1.getInitialLocations()) {
+            for (L init2 :
+                    pg2.getInitialLocations()) {
+                init1.add(init2);
+                interleavedPG.setInitial(init1, true);
+            }
+        }
+
+        // create initializations
+        for (List<String> init1 :
+                pg1.getInitalizations()) {
+            for (List<String> init2 :
+                    pg1.getInitalizations()) {
+                List<String> unionList = new ArrayList<>();
+                unionList.addAll(init1);
+                unionList.addAll(init2);
+                interleavedPG.addInitalization(unionList);
+            }
+        }
+
+        // create transitions
+        for (PGTransition<List<L>, A> t1 :
+                pg1.getTransitions()) {
+            for (L loc2 :
+                    pg2.getLocations()) {
+                List<L> fromList = t1.getFrom();
+                fromList.add(loc2);
+                List<L> toList = t1.getTo();
+                toList.add(loc2);
+
+                interleavedPG.addTransition(new PGTransition<>(
+                        fromList,
+                        t1.getCondition(),
+                        t1.getAction(),
+                        toList
+                ));
+            }
+        }
+        for (PGTransition<L, A> t2 :
+                pg2.getTransitions()) {
+            for (List<L> loc1 :
+                    pg1.getLocations()) {
+                List<L> fromList = new ArrayList<>();
+                fromList.addAll(loc1);
+                fromList.add(t2.getFrom());
+                List<L> toList = new ArrayList<>();
+                toList.addAll(loc1);
+                toList.add(t2.getTo());
+                interleavedPG.addTransition(new PGTransition<>(
+                        fromList,
+                        t2.getCondition(),
+                        t2.getAction(),
+                        toList
+                ));
+            }
+        }
+
+        return interleavedPG;
+    }
+
     @Override
     public <L, A> TransitionSystem<Pair<List<L>, Map<String, Object>>, A, String> transitionSystemFromChannelSystem(ChannelSystem<L, A> cs) {
+        if(cs.getProgramGraphs().size() == 0)
+            return new TransitionSystemImpl<>();
+        List<ProgramGraph<L, A>> PGs = cs.getProgramGraphs();
 
+        //first change the first PG into a PG of List<L> states' type
+        ProgramGraph<List<L>, A> currPG = adaptFirstCS(PGs.get(0));
+
+        // i = 1 to skip first
+        // interleave all PGs into 1 PG and then make a TS out of it
+        for(int i = 1; i < PGs.size() ; i++)
+            currPG = listInterleave(currPG, PGs.get(i));
+
+        Set<ActionDef> acList = new LinkedHashSet<>();
+        acList.add(new ParserBasedInterleavingActDef());
+        acList.add(new ParserBasedActDef());
+
+        Set<ConditionDef> cdList = new HashSet<>();
+        cdList.add(new ParserBasedCondDef());
+
+        return transitionSystemFromProgramGraph(currPG,acList,cdList); // what to add in actiondDefs, conditionDefs ?! :(
     }
 
     @Override
