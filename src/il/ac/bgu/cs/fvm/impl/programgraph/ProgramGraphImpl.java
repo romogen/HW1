@@ -39,7 +39,7 @@ public class ProgramGraphImpl<L, A> implements ProgramGraph<L, A> {
             initials.remove(location);
     }
 
-    @Override
+        @Override
     public void addLocation(L l) {
         locs.add(l);
     }
