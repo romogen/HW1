@@ -1,5 +1,6 @@
 package il.ac.bgu.cs.fvm.impl;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import il.ac.bgu.cs.fvm.FvmFacade;
 import il.ac.bgu.cs.fvm.automata.Automaton;
 import il.ac.bgu.cs.fvm.automata.MultiColorAutomaton;
@@ -16,10 +17,13 @@ import il.ac.bgu.cs.fvm.transitionsystem.AlternatingSequence;
 import il.ac.bgu.cs.fvm.transitionsystem.Transition;
 import il.ac.bgu.cs.fvm.transitionsystem.TransitionSystem;
 import il.ac.bgu.cs.fvm.util.Pair;
+import il.ac.bgu.cs.fvm.verification.VerificationFailed;
 import il.ac.bgu.cs.fvm.verification.VerificationResult;
 import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaParser.OptionContext;
 import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaParser.StmtContext;
 import il.ac.bgu.cs.fvm.nanopromela.NanoPromelaFileReader;
+import il.ac.bgu.cs.fvm.verification.VerificationSucceeded;
+
 import java.io.InputStream;
 import java.util.*;
 import java.util.List;
@@ -1045,7 +1049,66 @@ public class FvmFacadeImpl implements FvmFacade {
 
     @Override
     public <Sts, Saut, A, P> TransitionSystem<Pair<Sts, Saut>, A, Saut> product(TransitionSystem<Sts, A, P> ts, Automaton<Saut, P> aut) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement product
+        TransitionSystem<Pair<Sts, Saut>, A, Saut> ansTS = new TransitionSystemImpl<>();
+        Set<Pair<Sts, Saut>> openSet = new HashSet<>(), closeSet = new HashSet<>();
+
+        //add initial states
+        for (Sts currTsState :
+                ts.getInitialStates()) {
+            for (Saut currAutInitial :
+                    aut.getInitialStates()) {
+                for (Saut currAutNext:
+                        aut.nextStates(currAutInitial, ts.getLabel(currTsState))) {
+                    Pair<Sts, Saut> newState = new Pair<>(currTsState, currAutNext);
+                    ansTS.addState(newState);
+                    ansTS.setInitial(newState, true);
+                    openSet.add(newState);
+                }
+            }
+        }
+
+        //add actions
+        ansTS.addAllActions(ts.getActions());
+
+        // expand all reachable ansTS states and transitions
+        while (openSet.size() > 0){
+            Set<Pair<Sts, Saut>> newOpenSet = new HashSet<>();
+            for (Pair<Sts, Saut> currState :
+                    openSet) {
+                for (Transition<Sts, A> currTrans :
+                        ts.getTransitions()) {
+                    if(currState.getFirst().equals(currTrans.getFrom())){
+                        Set<Saut> nexts = aut.nextStates(currState.getSecond(), ts.getLabel(currTrans.getTo()));
+                        if(nexts != null){
+                            for (Saut nextAutoS :
+                                    nexts) {
+                                Pair<Sts, Saut> newState = new Pair<>(currTrans.getTo(), nextAutoS);
+                                Transition<Pair<Sts, Saut>, A> newTrans = new Transition<>(
+                                        currState,
+                                        currTrans.getAction(),
+                                        newState);
+                                if(!openSet.contains(newState) && !closeSet.contains(newState)){
+                                    ansTS.addState(newState);
+                                    newOpenSet.add(newState);
+                                }
+                                ansTS.addTransition(newTrans);
+                            }
+                        }
+                    }
+                }
+            }
+            closeSet.addAll(openSet);
+            openSet = newOpenSet;
+        }
+
+        //add labels to states.
+        for (Pair<Sts, Saut> currState :
+                ansTS.getStates()) {
+            ansTS.addAtomicProposition(currState.getSecond());
+            ansTS.addToLabel(currState, currState.getSecond());
+        }
+
+        return ansTS;
     }
 
     @Override
@@ -1187,10 +1250,111 @@ public class FvmFacadeImpl implements FvmFacade {
         }
     }
 
+    public <S, A, P> boolean cycle_check(TransitionSystem<S, A, P> ts, S s, Stack<S> statesStack){
+        Set<S> visited = new HashSet<>();
+        boolean cycle_found = false;
+        statesStack.push(s);
+        visited.add(s);
+
+        do{
+            S currS = statesStack.peek();
+            Set<S> currSPost = post(ts, currS);
+            if(currSPost.contains(s)){
+                cycle_found = true;
+                //statesStack.push(s);
+            }
+            else{
+                currSPost.removeAll(visited);
+                if(!currSPost.isEmpty()){
+                    S currS2 = currSPost.iterator().next();
+                    statesStack.push(currS2);
+                    visited.add(currS2);
+                }
+                else{
+                    statesStack.pop();
+                }
+            }
+        } while (!statesStack.isEmpty() && !cycle_found);
+        return cycle_found;
+    }
+
+    public <S, Saut> List<S> getList(Stack<Pair<S, Saut>> statesStack){
+        List<S> ans = new ArrayList<>();
+        for (Pair<S, Saut> currS:
+                statesStack) {
+            ans.add(currS.getFirst());
+        }
+        return ans;
+    }
+
+    public <S, A, P, Saut> List<S> getPrefList(TransitionSystem<Pair<S, Saut>, A, Saut> ts, Pair<S, Saut> s){
+        for(Pair<S, Saut> currInit:
+                ts.getInitialStates()){
+            boolean path_found = false;
+            Stack<Pair<S, Saut>> sStack = new Stack<>();
+            Set<Pair<S, Saut>> visited = new HashSet<>();
+            visited.add(currInit);
+            sStack.push(currInit);
+            do {
+                Pair<S, Saut> currS = sStack.peek();
+                Set<Pair<S, Saut>> currSPost = post(ts, currS);
+                if(currSPost.contains(s)){
+                    path_found = true;
+                    //sStack.push(s);
+                }
+                else{
+                    currSPost.removeAll(visited);
+                    if(!currSPost.isEmpty()){
+                        Pair<S, Saut> currS2 = currSPost.iterator().next();
+                        sStack.push(currS2);
+                        visited.add(currS2);
+                    }
+                    else{
+                        sStack.pop();
+                    }
+                }
+            } while(!sStack.isEmpty() && !path_found);
+            if(path_found)
+                return getList(sStack);
+/*            Stack<Pair<S, Saut>> sStack = new Stack<>();
+            Set<Pair<S, Saut>> visited = new HashSet<>();
+            visited.add(s);
+            visited.add(currInit);
+            sStack.push(currInit);
+            do {
+                Pair<S, Saut> currS = sStack.peek();
+                Set<Pair<S, Saut>> currSPost = post(ts, currS);
+                if(visited.containsAll(currSPost)){
+                    sStack.pop();
+                    if(currS.equals(s))
+                        return getList(sStack);
+                }
+                else{
+                    Pair<S, Saut> currS2 =
+                }
+
+            } while(!sStack.isEmpty());*/
+        }
+        return null;
+    }
 
     @Override
     public <S, A, P, Saut> VerificationResult<S> verifyAnOmegaRegularProperty(TransitionSystem<S, A, P> ts, Automaton<Saut, P> aut) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO: Implement verifyAnOmegaRegularProperty
+        TransitionSystem<Pair<S, Saut>, A, Saut> productTS = product(ts, aut);
+        Set<Saut> accepting = aut.getAcceptingStates();
+        Set<Pair<S,Saut>> notPhiStates = new HashSet<>();
+
+        for (Pair<S, Saut> currS :
+                productTS.getStates()) {
+            Stack<Pair<S,Saut>> statesStack = new Stack<>();
+            if(accepting.contains(currS.getSecond()) && cycle_check(productTS, currS, statesStack)){
+                VerificationFailed<S> ansVer = new VerificationFailed<>();
+                ansVer.setPrefix(getPrefList(productTS, currS));
+                ansVer.setCycle(getList(statesStack));
+                return ansVer;
+            }
+        }
+        return new VerificationSucceeded<S>();
     }
 
     @Override

@@ -1,2 +1,2 @@
-id-num-206252546 email-kitrona@post.bgu.ac.il nameAvishay Kitron.
-id-num-209016708 email-romogen2@gmail.com name-Rom Ogen.
+id-num-206252546 email-kitrona@post.bgu.ac.il name-Avishay Kitron
+id-num-209016708 email-romogen2@gmail.com name-Rom Ogen
